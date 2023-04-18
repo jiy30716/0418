@@ -35,7 +35,8 @@ with mp_pose.Pose(
     min_detection_confidence=0.5,
     min_tracking_confidence=0.5,
 ) as pose:  # 相同於 pose = mp_pose.Pose()
-    
+    STAGE=None
+    counter=0
     while True:
         ret,img=cap.read() #讀取影片 ret是布林函數,意思是是否可以讀取frame img是抓出來的frame
         if not ret:
@@ -74,6 +75,7 @@ with mp_pose.Pose(
                         (landmark.z * 0),
                     )
                 )
+
             l_elbow = calculateAngle( #計算left elbow的角度
                 landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value],
                 landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value],
@@ -84,16 +86,46 @@ with mp_pose.Pose(
                 landmarks[mp_pose.PoseLandmark.RIGHT_ELBOW.value],
                 landmarks[mp_pose.PoseLandmark.RIGHT_WRIST.value],
             )
+            l_shoulder = calculateAngle(
+                landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value],
+                landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value],
+                landmarks[mp_pose.PoseLandmark.LEFT_HIP.value],
+            )
+            r_shoulder = calculateAngle(
+                landmarks[mp_pose.PoseLandmark.RIGHT_HIP.value],
+                landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER.value],
+                landmarks[mp_pose.PoseLandmark.RIGHT_ELBOW.value],
+            )
+            l_hip = calculateAngle(
+                landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value],
+                landmarks[mp_pose.PoseLandmark.LEFT_HIP.value],
+                landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value],
+            )
+            r_hip = calculateAngle(
+                landmarks[mp_pose.PoseLandmark.RIGHT_KNEE.value],
+                landmarks[mp_pose.PoseLandmark.RIGHT_HIP.value],
+                landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER.value],
+            )
+            l_knee = calculateAngle(
+                landmarks[mp_pose.PoseLandmark.LEFT_HIP.value],
+                landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value],
+                landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value],
+            )
+            r_knee = calculateAngle(
+                landmarks[mp_pose.PoseLandmark.RIGHT_HIP.value],
+                landmarks[mp_pose.PoseLandmark.RIGHT_KNEE.value],
+                landmarks[mp_pose.PoseLandmark.RIGHT_ANKLE.value],
+            )
 
             color = (150, 0, 60)
-            
-            
+            color2 = (255, 250, 60)
+
             cv2.putText(
                 img,
                 str(l_elbow),
                 (
-                    landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value][0]-20,#-20
-                    landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value][1]-10,#-10
+                    landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value][0]-20,
+                    landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value][1]-10,
                 ),
                 # (np.multiply(left_elbow, [img.shape[1], img.shape[0]]).astype(int)),
                 cv2.FONT_HERSHEY_SIMPLEX,
@@ -103,15 +135,100 @@ with mp_pose.Pose(
                 img,
                 str(r_elbow),
                 (
-                    (landmarks[mp_pose.PoseLandmark.RIGHT_ELBOW.value][0])-25,#-25
-                    landmarks[mp_pose.PoseLandmark.RIGHT_ELBOW.value][1]-10,#-10
+                    (landmarks[mp_pose.PoseLandmark.RIGHT_ELBOW.value][0])-25,
+                    landmarks[mp_pose.PoseLandmark.RIGHT_ELBOW.value][1]-10,
                 ),
 
                 cv2.FONT_HERSHEY_SIMPLEX,
                 1,color,2,cv2.LINE_AA,)
             
+            
+            cv2.putText(
+                img,
+                str(l_shoulder),
+                (
+                    landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value][0]-25,
+                    landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value][1]-10,
+                ),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,color,2,cv2.LINE_AA,)
+            
+            cv2.putText(
+                img,
+                str(r_shoulder),
+                (
+                    landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER.value][0]-25,
+                    landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER.value][1]-10,
+                ),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,color,2,cv2.LINE_AA,)
+            
+            cv2.putText(
+                img,
+                str(l_hip),
+                (
+                    landmarks[mp_pose.PoseLandmark.LEFT_HIP.value][0]+20,
+                    landmarks[mp_pose.PoseLandmark.LEFT_HIP.value][1],
+                ),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,color,2,cv2.LINE_AA,)
+            
+            cv2.putText(
+                img,
+                str(r_hip),
+                (
+                    landmarks[mp_pose.PoseLandmark.RIGHT_HIP.value][0]-85,
+                    landmarks[mp_pose.PoseLandmark.RIGHT_HIP.value][1],
+                ),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,color,2,cv2.LINE_AA,)
+            
+            cv2.putText(
+                img,
+                str(l_knee),
+                (
+                    landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value][0]+20,
+                    landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value][1],
+                ),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,color,2,cv2.LINE_AA,)
+            
+            cv2.putText(
+                img,
+                str(r_knee),
+                (
+                    landmarks[mp_pose.PoseLandmark.RIGHT_KNEE.value][0]-85,
+                    landmarks[mp_pose.PoseLandmark.RIGHT_KNEE.value][1],
+                ),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,color,2,cv2.LINE_AA,)
+            if(l_shoulder>135
+               and r_shoulder>135
+               and l_hip<160
+               and r_hip<160):
+                STAGE="up"
+            if(l_shoulder<30
+               and r_shoulder<30
+               and l_hip>170
+               and r_hip>170
+               and STAGE=="up"):
+                STAGE="down"
+                counter+=1
+            cv2.putText(
+                img,
+                str(counter),
+                (10,60),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,(0,0,0),2,cv2.LINE_AA,)
+            cv2.putText(
+                img,
+                STAGE,
+                (90,60),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,(0,0,0),2,cv2.LINE_AA,)
+            
         cv2.imshow("pose",img) # 顯示影片 視窗名稱為pose
-        if cv2.waitKey(10)==ord("q"): # 按Q break
+        if cv2.waitKey(20)==ord("q"): # 按Q break
             break
     cap.release()
     cv2.destroyAllWindows()
