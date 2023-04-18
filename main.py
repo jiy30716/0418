@@ -74,24 +74,42 @@ with mp_pose.Pose(
                         (landmark.z * 0),
                     )
                 )
-
             l_elbow = calculateAngle( #計算left elbow的角度
                 landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value],
                 landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value],
                 landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value],
             )
+            r_elbow = calculateAngle(
+                landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER.value],
+                landmarks[mp_pose.PoseLandmark.RIGHT_ELBOW.value],
+                landmarks[mp_pose.PoseLandmark.RIGHT_WRIST.value],
+            )
 
             color = (150, 0, 60)
-
+            
+            
             cv2.putText(
                 img,
                 str(l_elbow),
-                ( landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value][0],
-                  landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value][1],),
+                (
+                    landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value][0]-20,#-20
+                    landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value][1]-10,#-10
+                ),
                 # (np.multiply(left_elbow, [img.shape[1], img.shape[0]]).astype(int)),
                 cv2.FONT_HERSHEY_SIMPLEX,
                 1,color,2,cv2.LINE_AA,)
-        
+
+            cv2.putText(
+                img,
+                str(r_elbow),
+                (
+                    (landmarks[mp_pose.PoseLandmark.RIGHT_ELBOW.value][0])-25,#-25
+                    landmarks[mp_pose.PoseLandmark.RIGHT_ELBOW.value][1]-10,#-10
+                ),
+
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,color,2,cv2.LINE_AA,)
+            
         cv2.imshow("pose",img) # 顯示影片 視窗名稱為pose
         if cv2.waitKey(10)==ord("q"): # 按Q break
             break
